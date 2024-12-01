@@ -209,3 +209,13 @@ router.put('/:id', (req, res) => {
     res.json(posts)
 })
 ```
+
+## Making DELETE request
+
+```js
+router.delete('/:id', (req, res) => {
+    const id = parseInt(req.params.id)
+    posts = posts.filter(post => post.id !== id)
+    res.json(posts)
+})
+```
