@@ -191,3 +191,21 @@ To parse body JSON use `express.json()` middleware in `main.js`
 ```js
 app.use(express.json())
 ```
+
+## Making PUT request
+
+```js
+router.put('/:id', (req, res) => {
+    const id = parseInt(req.params.id)
+    posts = posts.map(post => {
+        if(post.id === id){
+            return {
+                id: parseInt(req.body.id),
+                title: req.body.title
+            }
+        }
+        return post
+    })
+    res.json(posts)
+})
+```
