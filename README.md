@@ -219,3 +219,94 @@ router.delete('/:id', (req, res) => {
     res.json(posts)
 })
 ```
+
+## Middlewares
+
+Functions that are executed after request is made and before response in sent.
+
+```js
+function logger(req, res, next){
+    /*
+        Your code here...
+    */
+    next() // for moving to next middleware in stack
+}
+
+router.get('/', logger, (req, res) => {
+    /*
+        Your code here...
+    */
+})
+```
+
+To use middlewares at app level in `main.js`
+
+```js
+function logger(req, res, next){
+    /*
+        Your code here...
+    */
+    next() // for moving to next middleware in stack
+}
+
+app.use(logger) // will be executed for all routes
+```
+
+## Error Handling
+
+In `middlewares/errorHandler.js`: 
+
+```js
+function errorHandler(err, req, res, next) {
+    if(err.status) {
+        res.status(err.status).json({
+            message: err.message
+        })
+    }else {
+        res.status(500).json({
+            message: err.message
+        })
+    }
+}
+
+module.exports = errorHandler
+```
+
+To use it `main.js`
+
+```js
+/*
+    your other imports  here...
+*/
+const errorHandler = require('./middlewares/errorHandler') // import error handler function.
+
+/*
+    your code here...
+*/
+
+app.use('/api/posts', posts)
+app.use(errorHandler) // use it after routes
+
+/*
+    your code here...
+*/
+```
+
+In routes:
+```js
+router.get('/:id', (req, res, next) => {
+    /*
+        your code here...
+    */
+
+   if(!post){
+    const error = new Error("No post found")
+    error.status = 404
+    return next(error)
+   }
+
+   /*
+        your code here...
+    */
+})
+```
