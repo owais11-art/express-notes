@@ -310,3 +310,36 @@ router.get('/:id', (req, res, next) => {
     */
 })
 ```
+
+### Handling Not Found Route
+
+```js
+function notFound(req, res, next) {
+    const error = new Error('Path Not Found')
+    error.status = 404
+    return next(error)
+}
+
+module.exports = notFound
+```
+
+To use it in `main.js`
+
+```js
+/*
+    your other imports  here...
+*/
+const notFound = require('./middlewares/notFound') // import Not Found middleware function.
+
+/*
+    your code here...
+*/
+
+app.use('/api/posts', posts)
+app.use(notFound) // use it before error handler middleware
+app.use(errorHandler)
+
+/*
+    your code here...
+*/
+```
