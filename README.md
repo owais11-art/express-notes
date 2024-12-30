@@ -343,3 +343,63 @@ app.use(errorHandler)
     your code here...
 */
 ```
+## Authentication and Authorization
+
+```js
+const app = express()
+
+const ACCESS_TOKEN = `703e099db7b55c4841051741099846cab640676397c64ed1104b990d5d46722e55e10aa99fdb73d29363f9a14348b64cec7d3597a70f
+aba03d48e1bb445cc85c`
+
+app.use(express.json())
+
+// require('crypto').randomBytes(64).toString('hex)
+
+function authenticate(req, res, next) {
+    const authHeader = req.headers['authorization']
+    const token = authHeader ? authHeader.split(' ')[1] : null
+    if(!token) return res.status(401).json({msg: "Not Authorized"});
+
+    jwt.verify(token, ACCESS_TOKEN, (err, payload) => {
+        if(err)return res.status(403).json({msg: "Invalid Token"});
+
+        req.user = payload
+
+        next()
+    })
+}
+
+app.post('/signup', async(req, res) => {
+    const username = req.body.username
+    const password = req.body.password
+    const salt = await bcrypt.genSalt()
+    const hashedPassword = await bcrypt.hash(password, salt)
+    console.log(salt)
+    console.log(typeof(hashedPassword))
+    res.json({
+        msg: "Success"
+    })
+})
+
+app.post('/login', async(req, res) => {
+    const user = await User.findOne({name: req.body.name})
+    const valisPassword = await bcrypt.compare(req.body.password, user.password)
+    if(valisPassword) {
+        const accessToken = jwt.sign({username: user.name}, ACCESS_TOKEN)
+        res.json({
+            msg: "Login Successfull",
+            accessToken
+        })
+    } else {
+        res.json({
+            msg: "Login Failed"
+        })
+    }
+})
+
+app.get("/", authenticate, async(req, res) => {
+    if(!req.user) return res.json({msg: "Not Authorized from GET"})
+    const users = await User.find()
+    res.json(users)
+})
+```
