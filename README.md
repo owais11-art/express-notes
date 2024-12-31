@@ -403,3 +403,27 @@ app.get("/", authenticate, async(req, res) => {
     res.json(users)
 })
 ```
+## File Handling & Resizing
+
+```js
+const fileUpload = require("express-fileupload")
+const { Jimp } = require("jimp")
+
+app.use(fileUpload)
+
+app.post('/formData', async (req, res) => {
+    const { picture } = req.files
+    const [picName, picExt] = picture.name.split('.')
+    const picId = crypto.randomBytes(16).toString('hex')
+    const uniquePicName = `${picName}_${picId}.${picExt}`
+    const img = await Jimp.fromBuffer(picture.data)
+    img.resize({w: 100, h: 100})
+    await img.write(`${__dirname}/uploads/${uniquePicName}`)
+    // picture.mv(`${__dirname}/uploads/${uniquePicName}`)
+    console.log("Image resized")
+    res.json({
+        joke: req.body.joke,
+        picture: `http://localhost:3000/${uniquePicName}`
+    })  
+})
+```
